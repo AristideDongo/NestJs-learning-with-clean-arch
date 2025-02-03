@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from './infrastructure/database/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from 'src/config/typeorm.config';
 import { User } from './domain/entities/user.entity';
@@ -29,6 +29,6 @@ import { UserController } from './interface/controllers/user.controller';
     UpdateUserUseCases,
     DeleteUserUseCases,
   ],
-  exports: [PrismaService, CreateUserUseCase],
+  exports: [PrismaService],
 })
 export class UsersModule {}
