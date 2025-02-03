@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from 'src/users/domain/repositories/user.repository';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { User } from 'src/users/domain/entities/user.entity';
@@ -6,7 +6,10 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CreateUserUseCase {
-  constructor(private readonly userRepo: IUserRepository) {}
+  constructor(
+    @Inject('IUserRepository')
+    private readonly userRepo: IUserRepository,
+  ) {}
 
   async execute(data: CreateUserDto): Promise<User> {
     try {

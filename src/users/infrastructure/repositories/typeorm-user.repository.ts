@@ -15,6 +15,10 @@ export class TypeormUserRepository implements IUserRepository {
     return this.userRepository.save(user);
   }
 
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.userRepository.findOneBy({ id });
   }
