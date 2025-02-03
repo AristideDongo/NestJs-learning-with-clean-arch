@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -60,7 +61,7 @@ export class UserController {
   }
 
   //Suppression d'un utilisateur
-  @Post('delete/:id')
+  @Delete('delete/:id')
   async deleteUser(@Param('id') id: string) {
     await this.deleteUserUseCase.execute(id);
     return 'Utilisateur supprimé';
