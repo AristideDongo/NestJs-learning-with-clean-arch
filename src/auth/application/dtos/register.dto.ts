@@ -7,12 +7,12 @@ export class RegisterDto {
     description: "Email de l'utilisateur",
   })
   @IsEmail({}, { message: 'Email invalide' })
-  @IsNotEmpty({ message: "L'email est obligatoire" })
+  @IsNotEmpty()
   email: string;
 
   @ApiProperty({ example: 'John', description: "Prénom de l'utilisateur" })
   @IsString({})
-  @IsNotEmpty({ message: 'Le prénom est obligatoire' })
+  @IsNotEmpty()
   firstName: string;
 
   @ApiProperty({
@@ -20,7 +20,7 @@ export class RegisterDto {
     description: "Nom de famille de l'utilisateur",
   })
   @IsString({})
-  @IsNotEmpty({ message: 'Le nom de famille est obligatoire' })
+  @IsNotEmpty()
   lastName: string;
 
   @ApiProperty({
@@ -31,6 +31,6 @@ export class RegisterDto {
   @MinLength(8, {
     message: 'Le mot de passe doit contenir au moins 8 caractères',
   })
-  @IsNotEmpty({ message: 'Le mot de passe est obligatoire' })
+  @IsNotEmpty()
   password: string;
 }

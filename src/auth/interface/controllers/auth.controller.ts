@@ -1,5 +1,4 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { LoginDto } from 'src/auth/application/dtos/login.dto';
 import { RegisterDto } from 'src/auth/application/dtos/register.dto';
 import { LoginUseCase } from 'src/auth/application/use-cases/login.use-cases';
@@ -15,14 +14,13 @@ export class AuthController {
   //Route pour l'inscription d'un utilisateur
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-    const userRegistered = await this.registerUseCase.execute(dto);
-    return plainToInstance(RegisterDto, userRegistered);
+    console.log('données recues:', dto);
+    return this.registerUseCase.execute(dto);
   }
 
   //Route pour la connexion d'un utilisateur
   @Post('login')
-  async login(dto: LoginDto) {
-    const userLogged = await this.loginUseCase.execute(dto);
-    return plainToInstance(LoginDto, userLogged);
+  async login(@Body() dto: LoginDto) {
+    return this.loginUseCase.execute(dto);
   }
 }

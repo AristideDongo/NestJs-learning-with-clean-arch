@@ -8,6 +8,14 @@ export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(user: UserAuth): Promise<UserAuth> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: user.email },
+    });
+
+    if (existingUser) {
+      throw new Error("L'email existe deja");
+    }
+
     const createdUser = await this.prisma.user.create({
       data: {
         id: user.id,
@@ -32,20 +40,6 @@ export class PrismaUserRepository implements UserRepository {
 
   async findByEmail(email: string): Promise<UserAuth | null> {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) return null;
-    return new UserAuth({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      password: user.password,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    });
-  }
-
-  async findById(id: string): Promise<UserAuth | null> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) return null;
     return new UserAuth({
       id: user.id,

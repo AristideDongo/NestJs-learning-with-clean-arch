@@ -7,5 +7,5 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres',
   url: process.env.DATABASE_URL,
   entities: [User, UserAuth],
-  synchronize: true,
+  synchronize: false,
 };

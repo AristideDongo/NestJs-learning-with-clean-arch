@@ -10,6 +10,10 @@ export class UserByIdUseCases {
   ) {}
 
   async execute(id: string): Promise<User | null> {
-    return await this.userRepository.findById(id);
+    const user = await this.userRepository.findById(id);
+    if (user) {
+      delete user.password;
+    }
+    return user;
   }
 }

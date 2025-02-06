@@ -7,8 +7,10 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
+import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { CreateUserDto } from 'src/users/applications/dtos/create-user.dto';
 import { UpdateUserDto } from 'src/users/applications/dtos/update-user.dto';
 import { AllUserUseCases } from 'src/users/applications/use-cases/all-user.use-cases';
@@ -31,6 +33,7 @@ export class UserController {
 
   //Creation d'un utilisateur
   @Post('create')
+  @UseGuards(JwtAuthGuard)
   async createUser(@Body() createUserDto: CreateUserDto) {
     const user = await this.createUserUseCase.execute(createUserDto);
     return plainToInstance(CreateUserDto, user);
@@ -45,6 +48,7 @@ export class UserController {
 
   //Recuperation d'un utilisateur par son id
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id') id: string) {
     const findById = await this.userByIdUseCase.execute(id);
     return findById;
@@ -52,6 +56,7 @@ export class UserController {
 
   //Mise a jour d'un utilisateur
   @Put('update/:id')
+  @UseGuards(JwtAuthGuard)
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -62,6 +67,7 @@ export class UserController {
 
   //Suppression d'un utilisateur
   @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
   async deleteUser(@Param('id') id: string) {
     await this.deleteUserUseCase.execute(id);
     return 'Utilisateur supprimé';

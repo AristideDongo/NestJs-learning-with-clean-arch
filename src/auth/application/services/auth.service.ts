@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/auth/domain/repositories/user.repository';
 import { RegisterDto } from '../dtos/register.dto';
-import * as brcypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { UserAuth } from 'src/auth/domain/entities/user.entity';
 import { LoginDto } from '../dtos/login.dto';
 
@@ -13,9 +13,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  //Inscription de l'utilisateur
+  // Inscription de l'utilisateur
   async register(registerDto: RegisterDto): Promise<{ token: string }> {
-    const hashedPassword = await brcypt.hash(registerDto.password, 20);
+    const hashedPassword = await bcrypt.hash(registerDto.password, 20);
 
     const user = new UserAuth({
       id: crypto.randomUUID(),
@@ -28,6 +28,7 @@ export class AuthService {
 
     const createdUser = await this.userRepository.create(user);
     const token = this.generateToken(createdUser);
+
     return { token };
   }
 
@@ -35,7 +36,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<{ token: string }> {
     const user = await this.userRepository.findByEmail(dto.email);
 
-    if (!user || !(await brcypt.compare(dto.password, user.password))) {
+    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
 
