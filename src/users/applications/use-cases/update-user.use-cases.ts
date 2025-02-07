@@ -16,6 +16,9 @@ export class UpdateUserUseCases {
       throw new Error("L'utilisateur n'existe pas");
     }
     const updateUser = { ...existingUser, ...updateUserDto };
-    return await this.userRepository.update(updateUser);
+    const updatedUser = await this.userRepository.update(updateUser);
+
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
   }
 }
