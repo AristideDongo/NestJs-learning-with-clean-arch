@@ -14,7 +14,6 @@ export class AuthController {
   //Route pour l'inscription d'un utilisateur
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-    console.log('données recues:', dto);
     return this.registerUseCase.execute(dto);
   }
 
