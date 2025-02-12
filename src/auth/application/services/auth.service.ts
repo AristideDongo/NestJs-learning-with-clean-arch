@@ -1,21 +1,26 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/auth/domain/repositories/user.repository';
 import { RegisterDto } from '../dtos/register.dto';
-import * as bcrypt from 'bcrypt';
 import { UserAuth } from 'src/auth/domain/entities/user.entity';
 import { LoginDto } from '../dtos/login.dto';
+import { TokenService } from './token.service';
+import { HashService } from './hash.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
+    private readonly hashService: HashService,
   ) {}
 
   // Inscription de l'utilisateur
-  async register(registerDto: RegisterDto): Promise<{ token: string }> {
-    const hashedPassword = await bcrypt.hash(registerDto.password, 20);
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const hashedPassword = await this.hashService.hashPassword(
+      registerDto.password,
+    );
 
     const user = new UserAuth({
       id: crypto.randomUUID(),
@@ -27,28 +32,48 @@ export class AuthService {
     });
 
     const createdUser = await this.userRepository.create(user);
-    const token = this.generateToken(createdUser);
-
-    return { token };
+    return {
+      accessToken: this.tokenService.generateAccessToken(
+        createdUser.id,
+        createdUser.email,
+      ),
+      refreshToken: this.tokenService.generateRefreshToken(createdUser.id),
+    };
   }
 
   // Connexion d'un utilisateur
-  async login(dto: LoginDto): Promise<{ token: string }> {
+  async login(
+    dto: LoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.userRepository.findByEmail(dto.email);
 
-    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+    if (
+      !user ||
+      !(await this.hashService.comparePassword(dto.password, user.password))
+    ) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
-
-    const token = this.generateToken(user);
-    return { token };
+    return {
+      accessToken: this.tokenService.generateAccessToken(user.id, user.email),
+      refreshToken: this.tokenService.generateRefreshToken(user.id),
+    };
   }
 
-  // Générer un token JWT
-  private generateToken(user: UserAuth): string {
-    return this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-    });
+  // refresh token de l'utilisateur
+  async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+    try {
+      const payload = this.tokenService.verifyRefreshToken(refreshToken);
+      const user = await this.userRepository.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('');
+      }
+      return {
+        accessToken: this.tokenService.generateAccessToken(user.id, user.email),
+      };
+    } catch {
+      throw new UnauthorizedException('refresh token invalide ou expire');
+    }
   }
+
+  //Deconnexion de l'utilisateur
 }

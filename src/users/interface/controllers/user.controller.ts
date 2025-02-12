@@ -43,7 +43,7 @@ export class UserController {
   @Get('all')
   async getAllUsers() {
     const findAll = await this.AllUserUseCase.execute();
-    return findAll;
+    return findAll.map(({ password, ...user }) => user);
   }
 
   //Recuperation d'un utilisateur par son id
