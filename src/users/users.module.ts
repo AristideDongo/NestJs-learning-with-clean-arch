@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeOrmConfig } from 'src/config/typeorm.config';
 import { User } from './domain/entities/user.entity';
 import { TypeormUserRepository } from './infrastructure/repositories/typeorm-user.repository';
 import { CreateUserUseCase } from './applications/use-cases/create-user.use-cases';
@@ -10,15 +8,15 @@ import { AllUserUseCases } from './applications/use-cases/all-user.use-cases';
 import { UpdateUserUseCases } from './applications/use-cases/update-user.use-cases';
 import { DeleteUserUseCases } from './applications/use-cases/delete-user.use-cases';
 import { UserController } from './interface/controllers/user.controller';
+import { AppDataSource } from 'typeorm.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forRoot(AppDataSource.options),
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [UserController],
   providers: [
-    PrismaService,
     {
       provide: 'IUserRepository',
       useClass: TypeormUserRepository,
@@ -29,6 +27,6 @@ import { UserController } from './interface/controllers/user.controller';
     UpdateUserUseCases,
     DeleteUserUseCases,
   ],
-  exports: [PrismaService],
+  exports: [],
 })
 export class UsersModule {}

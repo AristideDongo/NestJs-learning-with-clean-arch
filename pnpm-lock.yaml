@@ -103,7 +103,7 @@ importers:
         specifier: ^29.5.14
         version: 29.5.14
       '@types/node':
-        specifier: ^22.10.7
+        specifier: ^22.12.0
         version: 22.12.0
       '@types/passport-jwt':
         specifier: ^4.0.1
@@ -150,6 +150,9 @@ importers:
       tsconfig-paths:
         specifier: ^4.2.0
         version: 4.2.0
+      typeorm-ts-node-commonjs:
+        specifier: ^0.3.20
+        version: 0.3.20
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
@@ -3673,6 +3676,10 @@ packages:
 
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
+
+  typeorm-ts-node-commonjs@0.3.20:
+    resolution: {integrity: sha512-lXjve7w7OcF3s5+dHnCsrBjUTukpVeiS0bDe5KDXWcDx8TyRW0GTTg9kjWgHzFgHgBIBBu4WGXM0iuGpEgaV9g==}
+    hasBin: true
 
   typeorm@0.3.20:
     resolution: {integrity: sha512-sJ0T08dV5eoZroaq9uPKBoNcGslHBR4E4y+EBHs//SiGbblGe7IeduP/IH4ddCcj0qp3PHwDwGnuvqEAnKlq/Q==}
@@ -7857,6 +7864,8 @@ snapshots:
       mime-types: 3.0.0
 
   typedarray@0.0.6: {}
+
+  typeorm-ts-node-commonjs@0.3.20: {}
 
   typeorm@0.3.20(pg@8.13.1)(ts-node@10.9.2(@swc/core@1.10.12)(@types/node@22.12.0)(typescript@5.7.3)):
     dependencies:
