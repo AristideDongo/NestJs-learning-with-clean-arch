@@ -11,6 +11,7 @@ import { AuthUserRepository } from './infrastructure/repositories/user.repositor
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserAuth } from './domain/entities/user.entity';
 import { AppDataSource } from 'typeorm.config';
+import { CoreModule } from 'src/core/core.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AppDataSource } from 'typeorm.config';
     }),
     TypeOrmModule.forRoot(AppDataSource.options),
     TypeOrmModule.forFeature([UserAuth]),
+    CoreModule,
   ],
   controllers: [AuthController],
   providers: [

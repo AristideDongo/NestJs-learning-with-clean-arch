@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     const options: StrategyOptions = {
       jwtFromRequest: jwtFromRequest,
-      secretOrKey: secret, // Assurez-vous que `secret` est une string
+      secretOrKey: secret,
     };
 
     super(options);

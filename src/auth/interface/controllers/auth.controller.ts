@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { LoginDto } from 'src/auth/application/dtos/login.dto';
 import { RefreshTokenDto } from 'src/auth/application/dtos/refresh-token.dto';
 import { RegisterDto } from 'src/auth/application/dtos/register.dto';
 import { AuthService } from 'src/auth/application/services/auth.service';
 import { TokenService } from 'src/auth/application/services/token.service';
+import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -28,12 +29,17 @@ export class AuthController {
 
   //Route pour le refresh token d'un utilisateur
   @Post('refresh-token')
-  refreshToken(@Body() refreshDtoToken: RefreshTokenDto) {
-    const accessToken = this.tokenService.verifyRefreshToken(
-      refreshDtoToken.refreshToken,
-    );
-    return {
-      accessToken: this.tokenService.generateAccessToken(accessToken.sub, ''),
-    };
+  @UseGuards(JwtAuthGuard)
+  async refreshToken(@Body() dto: RefreshTokenDto) {
+    const refreshToken = await this.authService.refreshTokens(dto.refreshToken);
+    return refreshToken;
+  }
+
+  //Route pour la deconnexion d'un utilisateur
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(@Body() dto: RefreshTokenDto) {
+    const logoutUser = await this.authService.logout(dto.refreshToken);
+    return logoutUser;
   }
 }

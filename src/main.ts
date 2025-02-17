@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
+// import { AuthMiddleware } from './core/middlewares/auth.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // app.use(new AuthMiddleware());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -16,7 +18,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('NestJS API')
-    .setDescription('Apprentissage de NestJS avec la cleane architecture')
+    .setDescription('Apprentissage de NestJS avec la clean architecture')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

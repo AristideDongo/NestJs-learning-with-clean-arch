@@ -14,20 +14,29 @@ export class AuthService {
     private readonly hashService: HashService,
   ) {}
 
-  // Inscription de l'utilisateur
   async register(
     registerDto: RegisterDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
+    // Hashage du mot de passe
     const hashedPassword = await this.hashService.hashPassword(
       registerDto.password,
     );
 
+    // Génération et hashage du token de rafraîchissement
+    const refreshToken = this.tokenService.generateRefreshToken(
+      crypto.randomUUID(),
+    );
+    const hashedRefreshToken =
+      await this.hashService.hashPassword(refreshToken);
+
+    // Création d'un nouvel utilisateur avec le refresh token hashé
     const user = new UserAuth({
       id: crypto.randomUUID(),
       email: registerDto.email,
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
       password: hashedPassword,
+      refreshToken: hashedRefreshToken,
       createdAt: new Date(),
     });
 
@@ -37,11 +46,10 @@ export class AuthService {
         createdUser.id,
         createdUser.email,
       ),
-      refreshToken: this.tokenService.generateRefreshToken(createdUser.id),
+      refreshToken: refreshToken,
     };
   }
 
-  // Connexion d'un utilisateur
   async login(
     dto: LoginDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
@@ -53,27 +61,69 @@ export class AuthService {
     ) {
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
+
+    // Génération d'un nouveau refresh token et hashage
+    const refreshToken = this.tokenService.generateRefreshToken(user.id);
+    const hashedRefreshToken =
+      await this.hashService.hashPassword(refreshToken);
+
+    // Mise à jour de l'utilisateur avec le nouveau refresh token
+    user.refreshToken = hashedRefreshToken;
+    await this.userRepository.save(user);
+
     return {
       accessToken: this.tokenService.generateAccessToken(user.id, user.email),
-      refreshToken: this.tokenService.generateRefreshToken(user.id),
+      refreshToken: refreshToken,
     };
   }
 
-  // refresh token de l'utilisateur
-  async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+  async refreshTokens(
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const payload = this.tokenService.verifyRefreshToken(refreshToken);
       const user = await this.userRepository.findById(payload.sub);
-      if (!user) {
-        throw new UnauthorizedException('');
+
+      if (!user || !user.refreshToken) {
+        throw new UnauthorizedException('Token de rafraîchissement invalide');
       }
-      return {
-        accessToken: this.tokenService.generateAccessToken(user.id, user.email),
-      };
+
+      // Vérification que le token de rafraîchissement fourni correspond au hash stocké
+      const isRefreshTokenValid = await this.hashService.comparePassword(
+        refreshToken,
+        user.refreshToken,
+      );
+
+      if (!isRefreshTokenValid) {
+        throw new UnauthorizedException('Token de rafraîchissement invalide');
+      }
+
+      // Génération des nouveaux tokens
+      const newAccessToken = this.tokenService.generateAccessToken(
+        user.id,
+        user.email,
+      );
+      const newRefreshToken = this.tokenService.generateRefreshToken(user.id);
+
+      // Hashage et stockage du nouveau token de rafraîchissement
+      user.refreshToken = await this.hashService.hashPassword(newRefreshToken);
+      await this.userRepository.save(user);
+
+      return { accessToken: newAccessToken, refreshToken: newRefreshToken };
     } catch {
-      throw new UnauthorizedException('refresh token invalide ou expire');
+      throw new UnauthorizedException(
+        'Token de rafraîchissement invalide ou expiré',
+      );
     }
   }
 
-  //Deconnexion de l'utilisateur
+  // Effacement du token de rafraîchissement lors de la déconnexion
+  async logout(userId: string): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable');
+    }
+    user.refreshToken = '';
+    await this.userRepository.save(user);
+  }
 }

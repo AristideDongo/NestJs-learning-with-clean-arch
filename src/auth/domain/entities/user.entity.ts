@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'Auth' })
 export class UserAuth {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -35,6 +35,9 @@ export class UserAuth {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  refreshToken: string;
 
   constructor(partial: Partial<UserAuth>) {
     Object.assign(this, partial);

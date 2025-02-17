@@ -33,4 +33,12 @@ export class AuthUserRepository implements UserRepository {
   async findById(id: string): Promise<UserAuth | null> {
     return await this.userRepository.findOne({ where: { id } });
   }
+
+  async update(user: UserAuth): Promise<UserAuth> {
+    return await this.userRepository.save(user);
+  }
+
+  async save(user: UserAuth): Promise<UserAuth> {
+    return await this.userRepository.save(user);
+  }
 }
