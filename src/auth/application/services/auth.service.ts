@@ -119,11 +119,6 @@ export class AuthService {
 
   // Effacement du token de rafraîchissement lors de la déconnexion
   async logout(userId: string): Promise<void> {
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new UnauthorizedException('Utilisateur introuvable');
-    }
-    user.refreshToken = '';
-    await this.userRepository.save(user);
+    await this.tokenService.logout(userId);
   }
 }

@@ -9,6 +9,7 @@ import { UpdateUserUseCases } from './applications/use-cases/update-user.use-cas
 import { DeleteUserUseCases } from './applications/use-cases/delete-user.use-cases';
 import { UserController } from './interface/controllers/user.controller';
 import { AppDataSource } from 'typeorm.config';
+import { UserRepository } from 'src/auth/domain/repositories/user.repository';
 
 @Module({
   imports: [
@@ -26,7 +27,11 @@ import { AppDataSource } from 'typeorm.config';
     AllUserUseCases,
     UpdateUserUseCases,
     DeleteUserUseCases,
+    {
+      provide: UserRepository,
+      useExisting: 'IUserRepository',
+    },
   ],
-  exports: [],
+  exports: [UserRepository],
 })
 export class UsersModule {}

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserRepository } from 'src/auth/domain/repositories/user.repository';
+import { UnauthorizedException } from 'src/core/exceptions/UnauthorizedException';
 
 interface JwtPayload {
   sub: string;
@@ -7,7 +9,10 @@ interface JwtPayload {
 
 @Injectable()
 export class TokenService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userRepository: UserRepository,
+  ) {}
 
   // Générer un accessToken
   generateAccessToken(userId: string, email: string): string {
@@ -43,5 +48,15 @@ export class TokenService {
     } catch {
       throw new Error('Refresh token invalide');
     }
+  }
+
+  // Effacement du token de rafraîchissement lors de la déconnexion
+  async logout(userId: string): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable');
+    }
+    user.refreshToken = '';
+    await this.userRepository.save(user);
   }
 }

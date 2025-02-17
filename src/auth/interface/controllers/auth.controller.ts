@@ -3,15 +3,12 @@ import { LoginDto } from 'src/auth/application/dtos/login.dto';
 import { RefreshTokenDto } from 'src/auth/application/dtos/refresh-token.dto';
 import { RegisterDto } from 'src/auth/application/dtos/register.dto';
 import { AuthService } from 'src/auth/application/services/auth.service';
-import { TokenService } from 'src/auth/application/services/token.service';
+import { CurrentUser } from 'src/auth/infrastructure/decorators/current-user.decorator';
 import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly tokenService: TokenService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   //Route pour l'inscription d'un utilisateur
   @Post('register')
@@ -38,8 +35,8 @@ export class AuthController {
   //Route pour la deconnexion d'un utilisateur
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Body() dto: RefreshTokenDto) {
-    const logoutUser = await this.authService.logout(dto.refreshToken);
-    return logoutUser;
+  async logout(@CurrentUser() user: any) {
+    await this.authService.logout(user.id);
+    return { message: 'Deconnexion effectuée' };
   }
 }
